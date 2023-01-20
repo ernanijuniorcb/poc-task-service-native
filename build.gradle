@@ -1,0 +1,62 @@
+plugins {
+	id 'java'
+	id 'org.springframework.boot' version '3.0.1'
+	id 'io.spring.dependency-management' version '1.1.0'
+	id 'org.hibernate.orm' version '6.1.6.Final'
+	id 'org.graalvm.buildtools.native' version '0.9.18'
+}
+
+group = 'com.example'
+version = '0.0.1-SNAPSHOT'
+sourceCompatibility = '19'
+
+configurations {
+	compileOnly {
+		extendsFrom annotationProcessor
+	}
+}
+
+repositories {
+	mavenCentral()
+	gradlePluginPortal()
+}
+
+dependencies {
+	implementation 'org.springframework.boot:spring-boot-starter-web'
+	implementation 'software.amazon.awssdk:dynamodb-enhanced:2.19.19'
+	implementation 'software.amazon.awssdk:annotations:2.19.19'
+
+
+
+	compileOnly 'org.projectlombok:lombok'
+	annotationProcessor 'org.projectlombok:lombok'
+	testImplementation 'org.springframework.boot:spring-boot-starter-test'
+}
+
+tasks.named('test') {
+	useJUnitPlatform()
+}
+
+hibernate {
+	enhancement {
+		lazyInitialization true
+		dirtyTracking true
+		associationManagement true
+	}
+}
+
+graalvmNative {
+	testSupport = false
+	binaries {
+		main {
+			javaLauncher = javaToolchains.launcherFor {
+				languageVersion = JavaLanguageVersion.of(19)
+				vendor = JvmVendorSpec.matching("GraalVM Community")
+			}
+		}
+	}
+	toolchainDetection = false
+}
+
+
+
