@@ -34,7 +34,8 @@ public class DemoController {
                                  @RequestParam(required = false, name = "lastKey") String lastKey) {
 
         ScanEnhancedRequest.Builder scanEnhancedRequestBuilder = ScanEnhancedRequest.builder();
-        DynamoDbTable<TaskEntity> table = dynamoDbConfig.table("local-cx-tasks-services", TaskTableSchema.taskEntityTableSchema);
+    DynamoDbTable<TaskEntity> table =
+        dynamoDbConfig.table("TaskServices", TaskTableSchema.taskEntityTableSchema);
 
             if (Objects.nonNull(pageSize) && pageSize > 0) {
                 scanEnhancedRequestBuilder.limit(pageSize);
@@ -64,7 +65,8 @@ public class DemoController {
     @PostMapping
     public void post(@RequestBody TaskEntity taskEntity) {
 
-        DynamoDbTable<TaskEntity> table = dynamoDbConfig.table("local-cx-tasks-services", TaskTableSchema.taskEntityTableSchema);
+    DynamoDbTable<TaskEntity> table =
+        dynamoDbConfig.table("TaskServices", TaskTableSchema.taskEntityTableSchema);
 
         table.putItem(taskEntity);
 

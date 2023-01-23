@@ -3,12 +3,14 @@ plugins {
 	id 'org.springframework.boot' version '3.0.1'
 	id 'io.spring.dependency-management' version '1.1.0'
 	id 'org.hibernate.orm' version '6.1.6.Final'
-	id 'org.graalvm.buildtools.native' version '0.9.18'
+	id 'org.graalvm.buildtools.native' version '0.9.19'
+	id 'distribution'
 }
 
 group = 'com.example'
 version = '0.0.1-SNAPSHOT'
-sourceCompatibility = '19'
+sourceCompatibility = 17
+targetCompatibility = 17
 
 configurations {
 	compileOnly {
@@ -23,10 +25,13 @@ repositories {
 
 dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-web'
+	implementation 'org.springframework.cloud:spring-cloud-function-dependencies:4.0.0'
 	implementation 'software.amazon.awssdk:dynamodb-enhanced:2.19.19'
 	implementation 'software.amazon.awssdk:annotations:2.19.19'
-
-
+	implementation 'com.amazonaws:aws-lambda-java-events:3.11.0'
+	implementation 'com.amazonaws:aws-lambda-java-core:1.2.1'
+	implementation 'com.amazonaws:aws-lambda-java-log4j2:1.5.1'
+	implementation 'com.amazonaws.serverless:aws-serverless-java-container-spring:1.8.2'
 
 	compileOnly 'org.projectlombok:lombok'
 	annotationProcessor 'org.projectlombok:lombok'
@@ -46,6 +51,8 @@ hibernate {
 }
 
 graalvmNative {
+	sourceCompatibility = 17
+	targetCompatibility = 17
 	testSupport = false
 	binaries {
 		main {
@@ -57,6 +64,32 @@ graalvmNative {
 	}
 	toolchainDetection = false
 }
+task buildZip(type: Zip) {
+	from compileJava
+	from processResources
+	into('lib') {
+		from configurations.runtimeClasspath
+	}
+}
 
+
+distributions {
+	main {
+		contents {
+//			into('lib/') {  // Copy the following jars to the lib/ directory in the distribution archive
+//				from jar
+//				from configurations.runtimeClasspath
+//				dirMode = 0755
+//				fileMode = 0775
+//			}
+			into('/') {  // Contents of this directory are copied by default
+				from 'src/shell/native'
+				from 'build/native/nativeCompile'
+				dirMode = 0755
+				fileMode = 0775
+			}
+		}
+	}
+}
 
 

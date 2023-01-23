@@ -1,0 +1,5 @@
+{
+  "taskIndexFunction": {
+    "DYNAMODB_ENDPOINT_OVERRIDE": "http://docker.for.mac.localhost:8000"
+  }
+}
