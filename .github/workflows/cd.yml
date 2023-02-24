@@ -1,0 +1,62 @@
+name: Continuous Delivery
+
+on:
+  push:
+    branches: [ main ]
+  release:
+    types: [ published ]
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: Environment
+        type: environment
+        required: true
+
+jobs:
+#  cd:
+#    uses: carlsberggbs/actions/.github/workflows/cd.yml@main
+#    with:
+#      deploy-strategy: aws-lambda
+#    secrets:
+#      token: ${{ secrets.GH_PKG_TOKEN }}
+#      app-id: ${{ secrets.CX_RELEASE_APP_ID }}
+#      app-private-key: ${{ secrets.CX_RELEASE_APP_PRIVATE_KEY }}
+#      aws-access-key-id-dev: ${{ secrets.CX_AWS_ACCESS_KEY_ID_DEV }}
+#      aws-secret-access-key-dev: ${{ secrets.CX_AWS_SECRET_ACCESS_KEY_DEV }}
+#      aws-access-key-id-prd: ${{ secrets.CX_AWS_ACCESS_KEY_ID_PRD }}
+#      aws-secret-access-key-prd: ${{ secrets.CX_AWS_SECRET_ACCESS_KEY_PRD }}
+#  deploy:
+#    runs-on: ubuntu-latest
+#    steps:
+#      - name: Checkout
+#        uses: actions/checkout@v2
+#
+#      - name: Configure AWS Credentials
+#        uses: aws-actions/configure-aws-credentials@v1
+#        if: github.event.inputs.cx-environment != 'prd'
+#        with:
+#          aws-access-key-id: ${{ secrets.CX_AWS_ACCESS_KEY_ID_DEV }}
+#          aws-secret-access-key: ${{ secrets.CX_AWS_SECRET_ACCESS_KEY_DEV }}
+#          aws-region: eu-west-1
+#
+#      - name: Configure AWS Credentials for Production
+#        uses: aws-actions/configure-aws-credentials@v1
+#        if: github.event.inputs.cx-environment == 'prd'
+#        with:
+#          aws-access-key-id: ${{ secrets.CX_AWS_ACCESS_KEY_ID_PRD }}
+#          aws-secret-access-key: ${{ secrets.CX_AWS_SECRET_ACCESS_KEY_PRD }}
+#          aws-region: eu-west-1
+#
+#      - name: Setting up python environment
+#        uses: actions/setup-python@v2
+#        with:
+#          python-version: "3.8"
+#
+#      - name: Setting up AWS SAM CLI
+#        uses: aws-actions/setup-sam@v1
+#
+#      - name: Building
+#        run: sam build --use-container
+#
+#      - name: Deploying
+#        run: sam deploy --no-confirm-changeset --no-fail-on-empty-changeset --config-file samconfig-${{ github.event.inputs.cx-environment }}.toml

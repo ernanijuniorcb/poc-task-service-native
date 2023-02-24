@@ -39,9 +39,6 @@ RUN yum -y update  \
  && rm -rf /var/cache/apt/archives \
  && rm -rf /var/lib/apt/lists/* \
  && cd / \
- && curl -L https://download.docker.com/linux/static/stable/x86_64/docker-19.03.14.tgz | tar zx \
- && mv /docker/* /bin/ \
- && chmod +x /bin/docker* \
  && export ENTRYKIT_VERSION=0.4.0 \
  && curl -L https://github.com/progrium/entrykit/releases/download/v${ENTRYKIT_VERSION}/entrykit_${ENTRYKIT_VERSION}_Linux_x86_64.tgz | tar zx \
  && chmod +x entrykit \
@@ -49,11 +46,6 @@ RUN yum -y update  \
  && entrykit --symlink \
  && gu install llvm-toolchain \
  && gu install native-image \
- && echo '%sudo ALL=(ALL) NOPASSWD:ALL' >> /etc/sudoers \
- && curl -L "https://github.com/docker/compose/releases/download/1.28.2/docker-compose-$(uname -s)-$(uname -m)" -o /bin/docker-compose \
- && chmod +x /bin/docker-compose
+ && echo '%sudo ALL=(ALL) NOPASSWD:ALL' >> /etc/sudoers
 
-ADD docker/docker-lib.sh /bin/docker-lib.sh
-ADD docker/start-docker.sh /bin/start-docker.sh
-
-CMD native-image --version && sudo /bin/start-docker.sh && /bin/bash
+CMD native-image --version

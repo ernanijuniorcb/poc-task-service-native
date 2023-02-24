@@ -1,0 +1,78 @@
+name: Continuous Integration
+
+on:
+  pull_request:
+    branches: [ main ]
+    types: [ opened, reopened, synchronize, edited, ready_for_review ]
+  push:
+    branches: [ main ]
+  schedule:
+    - cron: '30 19 * * 1'
+
+jobs:
+  setupEnvironment:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Setting up python environment
+        uses: actions/setup-python@v2
+        with:
+          python-version: '3.8'
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: us-east-2
+          mask-aws-account-id: 'false'
+
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v1
+
+    outputs:
+      registry: ${{ steps.login-ecr.outputs.registry }}
+      docker_username: ${{ steps.login-ecr.outputs.docker_username_468668222062_dkr_ecr_us_east_2_amazonaws_com }}
+      docker_password: ${{ steps.login-ecr.outputs.docker_password_468668222062_dkr_ecr_us_east_2_amazonaws_com }}
+  
+  buildNativeImage:
+    needs: setupEnvironment
+    runs-on: ubuntu-latest
+    container:
+      image: ${{ needs.setupEnvironment.outputs.registry }}/native-compile:latest
+      credentials:
+        username: ${{ needs.setupEnvironment.outputs.docker_username }}
+        password: ${{ needs.setupEnvironment.outputs.docker_password }}
+      volumes:
+        - ${{ github.workspace }}:/tmp
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Generate versions
+        uses: HardNorth/github-version-generate@v1.3.0
+        with:
+          version-source: file
+          version-file: gradle.properties
+          version-file-extraction-pattern: '(?<=version=).+'
+
+      - name: Mark Current Directory as Safe
+        run: git config --global --add safe.directory '*'
+
+      - name: Release with Gradle
+        id: release
+        run: |
+          ./gradlew release -Prelease.useAutomaticVersion=true \
+          -Prelease.releaseVersion=${{ env.RELEASE_VERSION }} \
+          -Prelease.newVersion=${{ env.NEXT_VERSION }}
+
+      - name: Build Native Image
+        run: ./gradlew buildNativeImageDist
+
+      - name: Publish Artfact
+        uses: actions/upload-artifact@v3
+        with:
+          path: build/distributions/*.zip
