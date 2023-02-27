@@ -38,3 +38,5 @@ out/
 
 ### MAC_OS ###
 *.DS_Store
+/hsperfdata*
+/SVM*

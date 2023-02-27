@@ -13,9 +13,6 @@ jobs:
   setupEnvironment:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
-        uses: actions/checkout@v2
-
       - name: Setting up python environment
         uses: actions/setup-python@v2
         with:
@@ -60,14 +57,18 @@ jobs:
           version-file-extraction-pattern: '(?<=version=).+'
 
       - name: Mark Current Directory as Safe
-        run: git config --global --add safe.directory '*'
+        run: |
+          git config --global --add safe.directory '*'
+          git config --global user.name "carlsberg-release-app[bot]"
+          git config --global user.email "carlsberg-release-app[bot]@users.noreply.github.com"
+        shell: bash
 
       - name: Release with Gradle
         id: release
         run: |
           ./gradlew release -Prelease.useAutomaticVersion=true \
           -Prelease.releaseVersion=${{ env.RELEASE_VERSION }} \
-          -Prelease.newVersion=${{ env.NEXT_VERSION }} -x test
+          -Prelease.newVersion=${{ env.NEXT_VERSION }} -x checkCommitNeeded
 
       - name: Build Native Image
         run: ./gradlew buildNativeImageDist
