@@ -10,8 +10,9 @@ CMD ["bash"]
 RUN mkdir /opt/java
 ENV JAVA_HOME=/opt/java
 ENV PATH=/opt/java/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
-RUN yum -y update  \
-&&  yum install -y wget tar gzip bzip2-devel ed gcc gcc-c++ gcc-gfortran \
+RUN yum -y update \
+&& yum install yum-utils -y \
+&& yum install -y wget tar gzip bzip2-devel ed gcc gcc-c++ gcc-gfortran \
         less libcurl-devel openssl openssl-devel readline-devel xz-devel freetype-devel \
         zlib-devel glibc-static libcxx libcxx-devel llvm-toolset-7 zlib-static shadow-utils unzip git curl \
  && curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.3/install.sh | bash \
@@ -44,6 +45,8 @@ RUN yum -y update  \
  && chmod +x entrykit \
  && mv entrykit /bin/entrykit \
  && entrykit --symlink \
+ && yum-config-manager --add-repo https://cli.github.com/packages/rpm/gh-cli.repo \
+ && yum install gh -y \
  && gu install llvm-toolchain \
  && gu install native-image \
  && echo '%sudo ALL=(ALL) NOPASSWD:ALL' >> /etc/sudoers
