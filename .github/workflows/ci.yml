@@ -74,3 +74,5 @@ jobs:
 
       - name: Create Release
         run: gh release create ${{ env.RELEASE_VERSION }} --generate-notes build/distributions/*.zip
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
