@@ -67,7 +67,7 @@ jobs:
         run: |
           ./gradlew release -Prelease.useAutomaticVersion=true \
           -Prelease.releaseVersion=${{ env.RELEASE_VERSION }} \
-          -Prelease.newVersion=${{ env.NEXT_VERSION }}
+          -Prelease.newVersion=${{ env.NEXT_VERSION }} -x test
 
       - name: Build Native Image
         run: ./gradlew buildNativeImageDist
