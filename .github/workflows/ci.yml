@@ -61,7 +61,6 @@ jobs:
           git config --global --add safe.directory '*'
           git config --global user.name "carlsberg-release-app[bot]"
           git config --global user.email "carlsberg-release-app[bot]@users.noreply.github.com"
-        shell: bash
 
       - name: Release with Gradle
         id: release
@@ -73,7 +72,25 @@ jobs:
       - name: Build Native Image
         run: ./gradlew buildNativeImageDist
 
-      - name: Publish Artfact
-        uses: actions/upload-artifact@v3
-        with:
-          path: build/distributions/*.zip
+      - name: Set Artifacts Path
+        id: artifactsPath
+        run: |
+          artifacts ""
+          
+          if stat -t target/**/*.jar >/dev/null 2>&1
+          then
+            artifacts="$artifacts target/*.jar"
+          fi
+          if stat -t target/function.zip >/dev/null 2>&1
+          then
+            cp target/function.zip lambda.zip
+            artifacts="$artifacts target/function.zip"
+          fi
+          if stat -t **/target/function.zip >/dev/null 2>&1
+          then
+            artifacts="$artifacts **/target/function.zip"
+          fi
+          echo "::set-output name=artifacts::$artifacts"
+
+      - name: Create Release
+        run: gh release create ${{ env.RELEASE_VERSION }} --generate-notes ${{ steps.artifactsPath.outputs.artifacts }}
