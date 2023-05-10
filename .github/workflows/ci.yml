@@ -65,7 +65,8 @@ jobs:
       - name: Release with Gradle
         id: release
         run: |
-          ./gradlew release -Prelease.useAutomaticVersion=true \
+          ./gradlew -Prelease_version=${{ env.RELEASE_VERSION }} -Pnext_version=${{ env.NEXT_VERSION }} \
+           release -Prelease.useAutomaticVersion=true \
           -Prelease.releaseVersion=${{ env.RELEASE_VERSION }} \
           -Prelease.newVersion=${{ env.NEXT_VERSION }} -x checkCommitNeeded
 

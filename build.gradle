@@ -9,6 +9,11 @@ plugins {
 	id 'distribution'
 }
 
+ext {
+	release_version = '0.0.0'
+	next_version = '0.0.0'
+}
+
 configurations {
 	compileOnly {
 		extendsFrom annotationProcessor
@@ -132,7 +137,7 @@ release {
 			/^LATEST_SNAPSHOT*/: { "LATEST_SNAPSHOT" }
 	]
 	preCommitText = '[skip ci]'
-	preTagCommitMessage = "bump: ${{ env.RELEASE_VERSION }} -> "
-	tagCommitMessage = "bump: ${{ env.NEXT_VERSION }} -> "
+	preTagCommitMessage = "bump: ${{ ext.release_version }} -> "
+	tagCommitMessage = "bump: ${{ ext.next_version }} -> "
 }
 
