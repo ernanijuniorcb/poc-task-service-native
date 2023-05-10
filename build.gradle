@@ -132,7 +132,7 @@ release {
 			/^LATEST_SNAPSHOT*/: { "LATEST_SNAPSHOT" }
 	]
 	preCommitText = '[skip ci]'
-	preTagCommitMessage = 'bump: ${{ env.RELEASE_VERSION }} -> '
-	tagCommitMessage = 'bump: ${{ env.NEXT_VERSION }} -> '
+	preTagCommitMessage = "bump: ${{ env.RELEASE_VERSION }} -> "
+	tagCommitMessage = "bump: ${{ env.NEXT_VERSION }} -> "
 }
 

@@ -70,7 +70,7 @@ jobs:
           -Prelease.newVersion=${{ env.NEXT_VERSION }} -x checkCommitNeeded
 
       - name: Build Native Image
-        run: ./gradlew buildNativeImageDist
+        run: ./gradlew build distZip
 
       - name: Create Release
         run: gh release create ${{ env.RELEASE_VERSION }} --generate-notes build/distributions/*.zip
