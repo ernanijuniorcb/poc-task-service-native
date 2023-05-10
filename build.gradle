@@ -9,6 +9,7 @@ plugins {
 	id 'distribution'
 }
 
+
 configurations {
 	compileOnly {
 		extendsFrom annotationProcessor
@@ -127,12 +128,13 @@ tasks.register('buildNativeImageDist') {
 }
 
 release {
+	String release_version = providers.gradleProperty("release_version").getOrElse("0.0.0")
+	String next_version = providers.gradleProperty("next_version").getOrElse("0.0.0")
 	versionPatterns = [
 			/(\d+)([^\d]*$)/   : { Matcher m, Project p -> m.replaceAll("${(m[0][1] as int) + 1}${m[0][2]}") },
 			/^LATEST_SNAPSHOT*/: { "LATEST_SNAPSHOT" }
 	]
 	preCommitText = '[skip ci]'
-	preTagCommitMessage = "bump: ${{ env.RELEASE_VERSION }} -> "
-	tagCommitMessage = "bump: ${{ env.NEXT_VERSION }} -> "
+	preTagCommitMessage = "bump: ${{ release_version }} -> "
+	tagCommitMessage = "bump: ${{ next_version }} -> "
 }
-
