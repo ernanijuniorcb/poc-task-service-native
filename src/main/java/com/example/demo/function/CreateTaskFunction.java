@@ -1,26 +1,25 @@
-package com.example.demo.web;
+package com.example.demo.function;
 
 import com.amazonaws.services.lambda.runtime.events.APIGatewayProxyRequestEvent;
 import com.amazonaws.services.lambda.runtime.events.APIGatewayProxyResponseEvent;
 import com.example.demo.domain.TaskEntity;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import java.util.function.Function;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import org.springframework.validation.annotation.Validated;
 
-import java.util.function.Function;
-
 @Component
 @Slf4j
 @Validated
-public class ExampleFunction
+public class CreateTaskFunction
     implements Function<APIGatewayProxyRequestEvent, APIGatewayProxyResponseEvent> {
 
   private final ObjectMapper objectMapper;
 
-  public ExampleFunction(final ObjectMapper objectMapper) {
+  public CreateTaskFunction(final ObjectMapper objectMapper) {
     this.objectMapper = objectMapper;
   }
 

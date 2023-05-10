@@ -1,26 +1,25 @@
-package com.example.demo.web;
+package com.example.demo.function;
 
 import com.amazonaws.services.lambda.runtime.events.APIGatewayProxyRequestEvent;
 import com.amazonaws.services.lambda.runtime.events.APIGatewayProxyResponseEvent;
 import com.example.demo.domain.TaskEntity;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import java.util.function.Function;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import org.springframework.validation.annotation.Validated;
 
-import java.util.function.Function;
-
 @Component
 @Slf4j
 @Validated
-public class ExampleFunction2
+public class UpdateTaskFunction
     implements Function<APIGatewayProxyRequestEvent, APIGatewayProxyResponseEvent> {
 
   private final ObjectMapper objectMapper;
 
-  public ExampleFunction2(final ObjectMapper objectMapper) {
+  public UpdateTaskFunction(final ObjectMapper objectMapper) {
     this.objectMapper = objectMapper;
   }
 
@@ -34,15 +33,14 @@ public class ExampleFunction2
   @Override
   @SneakyThrows(value = JsonProcessingException.class)
   public APIGatewayProxyResponseEvent apply(final APIGatewayProxyRequestEvent proxyRequestEvent) {
-    log.info("Converting request into a response2...'");
+    log.info("Converting request into a response...'");
 
     final TaskEntity request =
         objectMapper.readValue(proxyRequestEvent.getBody(), TaskEntity.class);
 
-    final TaskEntity response =
-        TaskEntity.builder().eid(request.getEid()).assignedTo("teste").build();
+    final TaskEntity response = TaskEntity.builder().eid(request.getEid()).build();
 
-    log.info("Converted request into a response2.");
+    log.info("Converted request into a response.");
 
     return new APIGatewayProxyResponseEvent()
         .withStatusCode(200)

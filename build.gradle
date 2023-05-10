@@ -1,14 +1,13 @@
+import java.util.regex.Matcher
+
 plugins {
 	id 'java'
-	id 'org.springframework.boot' version '3.0.1'
+	id 'org.springframework.boot' version '3.0.5'
 	id 'io.spring.dependency-management' version '1.1.0'
 	id 'org.graalvm.buildtools.native' version '0.9.19'
 	id 'net.researchgate.release' version '3.0.2'
 	id 'distribution'
 }
-
-sourceCompatibility = 19
-targetCompatibility = 19
 
 configurations {
 	compileOnly {
@@ -38,27 +37,61 @@ dependencies {
 	implementation 'com.amazonaws:aws-lambda-java-serialization:1.0.2'
 	implementation 'com.amazonaws:aws-lambda-java-core:1.2.1'
 	implementation 'com.amazonaws:aws-lambda-java-log4j2:1.5.1'
-	implementation 'com.amazonaws.serverless:aws-serverless-java-container-spring:1.8.2'
 
-	compileOnly 'org.projectlombok:lombok'
-	annotationProcessor 'org.projectlombok:lombok'
+	implementation 'org.mapstruct:mapstruct:1.5.4.Final'
+	annotationProcessor 'org.mapstruct:mapstruct-processor:1.5.4.Final'
+	testAnnotationProcessor 'org.mapstruct:mapstruct-processor:1.5.4.Final'
+
+	implementation 'org.springframework.boot:spring-boot-starter-validation:3.0.5'
+
+	compileOnly 'org.projectlombok:lombok:1.18.26'
+	annotationProcessor 'org.projectlombok:lombok:1.18.26'
+	annotationProcessor 'org.projectlombok:lombok-mapstruct-binding:0.2.0'
+
+	testCompileOnly 'org.projectlombok:lombok:1.18.26'
+	testAnnotationProcessor 'org.projectlombok:lombok:1.18.26'
+	testAnnotationProcessor 'org.projectlombok:lombok-mapstruct-binding:0.2.0'
+
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
+	testImplementation 'org.junit.jupiter:junit-jupiter-api:5.9.2'
+	testImplementation 'org.junit.jupiter:junit-jupiter:5.9.2'
+	testImplementation 'javax.servlet:javax.servlet-api:4.0.1'
+	testImplementation 'org.testcontainers:testcontainers:1.18.0'
+	testImplementation "org.testcontainers:junit-jupiter:1.18.0"
+
 }
 
 tasks.named('test') {
 	useJUnitPlatform()
+	environment "AWS_ACCESS_KEY_ID", "fake"
+	environment "AWS_SECRET_ACCESS_KEY", "fake"
+	environment "AWS_REGION", 'local'
+}
+
+tasks.named("jar") {
+	from collectReachabilityMetadata
 }
 
 graalvmNative {
-	sourceCompatibility = 17
-	targetCompatibility = 17
 	testSupport = false
+	metadataRepository {
+		enabled = true
+	}
+	sourceCompatibility = 19
+	targetCompatibility = 19
+	testSupport = false
+	binaries.all {
+		resources.autodetect()
+	}
 	binaries {
 		main {
+			resources.autodetect()
 			javaLauncher = javaToolchains.launcherFor {
 				languageVersion = JavaLanguageVersion.of(19)
 				vendor = JvmVendorSpec.matching("GraalVM Community")
+
 			}
+			// buildArgs.add('-H:IncludeResources=org/joda/time/tz/data/.*')
 		}
 	}
 	toolchainDetection = false
@@ -66,13 +99,8 @@ graalvmNative {
 
 distributions {
 	main {
+		distributionBaseName = 'function-lambda'
 		contents {
-//			into('lib/') {  // Copy the following jars to the lib/ directory in the distribution archive
-//				from jar
-//				from configurations.runtimeClasspath
-//				dirMode = 0755
-//				fileMode = 0775
-//			}
 			into('/') {  // Contents of this directory are copied by default
 				from 'src/shell/native'
 				from 'build/native/nativeCompile'
@@ -83,11 +111,25 @@ distributions {
 	}
 }
 
-task buildNativeImageDist {
+distZip {
+	archiveVersion = archiveVersion.get() replace("-SNAPSHOT", '')
+}
+
+tasks.register('buildNativeImageDist') {
+	afterReleaseBuild.dependsOn distZip
 	dependsOn 'clean'
 	dependsOn 'nativeCompile'
+	dependsOn 'release'
 	dependsOn 'distZip'
 	tasks.findByName('nativeCompile').mustRunAfter 'clean'
+	tasks.findByName('release').mustRunAfter 'nativeCompile'
 	tasks.findByName('distZip').mustRunAfter 'nativeCompile'
+}
+
+release {
+	versionPatterns = [
+			/(\d+)([^\d]*$)/   : { Matcher m, Project p -> m.replaceAll("${(m[0][1] as int) + 1}${m[0][2]}") },
+			/^LATEST_SNAPSHOT*/: { "LATEST_SNAPSHOT" }
+	]
 }
 

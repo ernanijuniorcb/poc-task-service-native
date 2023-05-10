@@ -1,20 +1,16 @@
-package com.example.demo.domain;
+package com.example.demo.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbBean;
-import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbPartitionKey;
 
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@DynamoDbBean
-public class TaskEntity {
+public class TaskEntityDto {
 
-  public static final String TASK_TABLE_NAME = "TaskServices";
   private String eid;
   private String dueDateTime;
   private String title;
@@ -30,9 +26,4 @@ public class TaskEntity {
   private String modifiedAt;
   private String createdByApp;
   private String modifiedByApp;
-
-  @DynamoDbPartitionKey
-  public String getEid() {
-    return eid;
-  }
 }
